@@ -27,6 +27,52 @@ export const register = async (req, res) => {
   }
 };
 
-export const login = (req, res) => {
-  console.log(req.body);
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const UserFound = await User.findOne({ email });
+
+    if (!UserFound) return res.status(400).json({ message: "User not found" });
+
+    const isMatch = await bcrypt.compare(password, userFound.password);
+
+    if (!isMatch)
+      return res.status(400).json({ message: "Invalid credentials" });
+
+    const newUser = new User({
+      username,
+      email,
+      password: passwordHash,
+    });
+
+    const token = await createAccessToken({ id: userFound._id });
+    res.cookie("token", token);
+    res.status(200).json({
+      id: userFound.id,
+      username: userFound.username,
+      email: userFound.email,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error registering user" });
+  }
+};
+
+export const logout = async (req, res) => {
+  res.cookie("token", "", {
+    expires: new Date(0),
+  });
+  return res.status(200);
+};
+
+export const profile = async (req, res) => {
+  const userFound = await User.findById(req.user.id);
+  if (!UserFound) return res.status(400).json({ message: "User not found" });
+
+  return res.json({
+    id: userFound.id,
+    username: userFound.username,
+    email: userFound.email,
+  });
 };
