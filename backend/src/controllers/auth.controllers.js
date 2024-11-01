@@ -5,8 +5,8 @@ import { createAccessToken } from "../libs/jwt.js";
 export const register = async (req, res) => {
   const { email, password, username } = req.body;
 
-  const passwordHash = await bcrypt.hash(password, 10);
   try {
+    const passwordHash = await bcrypt.hash(password, 10);
     const newUser = new User({
       username,
       email,
@@ -31,20 +31,14 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const UserFound = await User.findOne({ email });
+    const userFound = await User.findOne({ email });
 
-    if (!UserFound) return res.status(400).json({ message: "User not found" });
+    if (!userFound) return res.status(400).json({ message: "User not found" });
 
     const isMatch = await bcrypt.compare(password, userFound.password);
 
     if (!isMatch)
       return res.status(400).json({ message: "Invalid credentials" });
-
-    const newUser = new User({
-      username,
-      email,
-      password: passwordHash,
-    });
 
     const token = await createAccessToken({ id: userFound._id });
     res.cookie("token", token);
@@ -55,7 +49,7 @@ export const login = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Error registering user" });
+    res.status(500).json({ message: "Error login" });
   }
 };
 
@@ -63,7 +57,7 @@ export const logout = async (req, res) => {
   res.cookie("token", "", {
     expires: new Date(0),
   });
-  return res.status(200);
+  return res.status(200).json({ message: "Logged Out" });
 };
 
 export const profile = async (req, res) => {
@@ -76,3 +70,4 @@ export const profile = async (req, res) => {
     email: userFound.email,
   });
 };
+

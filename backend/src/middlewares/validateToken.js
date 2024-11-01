@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
-import { SECRET_TOKEN } from ".app.js";
-import { SECRET_TOKEN } from "../config";
+import { SECRET_TOKEN } from "../config.js";
 
 const authRequired = (req, res, next) => {
   const { token } = req.cookies;
@@ -14,3 +13,5 @@ const authRequired = (req, res, next) => {
 
   next();
 };
+
+export default authRequired;
